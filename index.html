@@ -450,7 +450,7 @@ function initMap(){
     box.appendChild(el);
   });
   const V={all:PL.map(p=>p.ll),lip:[4,5,6,2,3].map(i=>byId[i].ll),pl:[9,10].map(i=>byId[i].ll),kyiv:[8,11].map(i=>byId[i].ll)};
-  const go=v=>{map.invalidateSize();map.fitBounds(L.latLngBounds(V[v]),{paddingTopLeft:[40,40],paddingBottomRight:[150,40],maxZoom:v==='kyiv'?7:10});};
+  const go=v=>{map.invalidateSize();const narrow=map.getSize().x<600;map.fitBounds(L.latLngBounds(V[v]),{paddingTopLeft:narrow?[10,30]:[40,40],paddingBottomRight:narrow?[70,10]:[150,40],maxZoom:v==='kyiv'?7:10});};
   document.querySelectorAll('#views button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#views button').forEach(x=>x.classList.remove('on'));b.classList.add('on');go(b.dataset.v);});
   // соседние сёла Липецкого края подписываем только при приближении, иначе подписи слипаются
   const detail=[3,4,5,6];
