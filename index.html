@@ -82,6 +82,7 @@ h2{font-size:32px;margin:64px 0 6px}
 .mapwrap{display:grid;grid-template-columns:1fr 300px;gap:14px}
 @media (max-width:900px){.mapwrap{grid-template-columns:1fr}}
 #map{height:620px;border-radius:14px;border:1px solid var(--line);z-index:0}
+@media (max-width:600px){#map{height:460px}.places{max-height:none}}
 .views{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
 .views button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:6px 14px;border-radius:999px;cursor:pointer}
 .views button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -450,14 +451,16 @@ function initMap(){
     box.appendChild(el);
   });
   const V={all:PL.map(p=>p.ll),lip:[4,5,6,2,3].map(i=>byId[i].ll),pl:[9,10].map(i=>byId[i].ll),kyiv:[8,11].map(i=>byId[i].ll)};
-  const go=v=>{map.invalidateSize();const narrow=map.getSize().x<600;map.fitBounds(L.latLngBounds(V[v]),{paddingTopLeft:narrow?[10,30]:[40,40],paddingBottomRight:narrow?[70,10]:[150,40],maxZoom:v==='kyiv'?7:10});};
+  const go=v=>{map.invalidateSize();const narrow=map.getSize().x<600;map.fitBounds(L.latLngBounds(V[v]),{paddingTopLeft:narrow?[10,30]:[40,40],paddingBottomRight:narrow?[130,10]:[150,40],maxZoom:v==='kyiv'?7:10});};
   document.querySelectorAll('#views button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#views button').forEach(x=>x.classList.remove('on'));b.classList.add('on');go(b.dataset.v);});
   // соседние сёла Липецкого края подписываем только при приближении, иначе подписи слипаются
   const detail=[3,4,5,6];
-  const labels=()=>{const z=map.getZoom();PL.forEach(p=>{const t=p.m.getTooltip();if(t)t.setOpacity(detail.includes(p.id)&&z<7?0:1);});};
+  const labels=()=>{const z=map.getZoom(),nr=map.getSize().x<600;PL.forEach(p=>{const t=p.m.getTooltip();if(t)t.setOpacity((nr&&z<6)||(detail.includes(p.id)&&z<7)?0:1);});};
   map.on('zoomend',labels);
-  go('all');labels();
-  window.addEventListener('load',()=>{go('all');labels();});
+  const start=map.getSize().x<600?'lip':'all';
+  document.querySelectorAll('#views button').forEach(b=>b.classList.toggle('on',b.dataset.v===start));
+  go(start);labels();
+  window.addEventListener('load',()=>{go(document.querySelector('#views .on').dataset.v);labels();});
   new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){go(document.querySelector('#views .on').dataset.v);o.disconnect();}}).observe(document.getElementById('map'));
 }
 </script>
